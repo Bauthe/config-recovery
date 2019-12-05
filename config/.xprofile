@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Setting wallpaper
+nitrogen --set-auto $HOME/Pictures/wallpapers/arch_btw_jupiter.jpg &
+
+#stuff for desktop sessions
+if [ ! -z $1 ] && [ $1 == desktop ]; then
+
+    # Redshift
+    redshift &
+
+    # Compositing
+    picom -b &
+
+fi
+
+# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the screen before suspend. Use loginctl lock-session to lock your screen.
+#exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork &
+
+# Setting theme for Qt apps
+export QT_QPA_PLATFORMTHEME="qt5ct"
+
+# Removing ugly gnome apps buttons
+export GTK_CSD=0
+export LD_PRELOAD="/usr/lib/libgtk3-nocsd.so.0"
+
+# Setting default text editor
+export EDITOR="nvim"
+
+#Setting numlock on
+numlockx on

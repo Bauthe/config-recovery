@@ -1,0 +1,12 @@
+~/.bash_profile
+~/.bashrc
+~/.vimrc
+~/.xinitrc
+~/.nvidia-xinitrc
+~/.xprofile
+~/.Xresources
+~/.config/i3
+~/.config/polybar
+~/.config/picom.conf
+~/.config/ranger
+~/.config/nvim

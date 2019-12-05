@@ -1,0 +1,5 @@
+#!/bin/sh
+
+source ~/.xprofile
+xrandr --dpi 96 --output eDP-1-1 --mode 1920x1080 --output HDMI-1-1 --auto --right-of eDP-1-1
+exec i3

@@ -1,0 +1,71 @@
+#!/bin/sh
+
+#usage
+
+usage () {
+	echo 'config-sync DIRECTION
+Syncs the local config with the local "config-recovery" git repo
+
+-- Parameters --
+DIRECTION: "down" or "up"'. Respectively from the local repo or from the local config.
+	exit 0
+}
+
+typehelp () {
+	echo Type \"config-sync --help\" for more details.
+	exit 2
+}
+
+#parameters acquistion
+
+while [ "$1" != "" ]
+do case "$1" in
+	"down")
+		synctype=down
+		shift;;
+	"up")
+		synctype=up
+		shift;;
+	"--help"|"-help"|"-h")
+		usage;;
+	*)
+		echo ERROR: Unknown option \"$1\" && typehelp
+esac
+done
+
+#variables
+
+[ -z "$synctype" ] && echo ERROR: No sync direction given && typehelp 
+currentdir=$(dirname "$0")
+sourcedir="$currentdir/config"
+
+#functions
+
+dosync () {
+	node="$1"
+	[ "${node::2}" = "~/" ] && node="$HOME/${node:2}"
+	here="$sourcedir/$(basename -- $node)"
+	if [ "$synctype" = down ]
+		then rsync -rl "$here" "$(dirname $node)"
+		else rsync -rl "$node" "$(dirname $here)"
+	fi
+	echo Synced $node
+}
+
+#syncronization
+
+while read line
+do
+	first=${line::1}
+	case "$first" in
+		"#")
+			;;
+		*)
+			dosync "$line";;
+	esac
+done < "$currentdir/locations"
+
+#exit
+
+echo Local sync successful !
+exit 0

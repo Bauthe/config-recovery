@@ -1,0 +1,74 @@
+### cursor ###
+
+Xcursor.theme:                  breeze_cursors
+
+### xterm ###
+
+xterm*background:               black
+xterm*foreground:               lightgray
+! brighter blue
+*color12:						#70a0f0
+*color4:						#3465A4
+
+### URxvt ###
+
+URxvt.scrollBar:                false
+URxvt.font:                     xft:Hack:size=9,xft:FontAwesome:fontformat=truetype:size=10
+
+! colors
+
+URxvt.background:               #252525
+URxvt.foreground:               white
+URxvt.highlightColor:           #306080
+URxvt.highlightTextColor:       white
+
+! shortcuts
+
+URxvt.iso14755 :                false
+URxvt.keysym.Shift-Control-V:   eval:paste_clipboard
+URxvt.keysym.Shift-Control-C:   eval:selection_to_clipboard
+URxvt.keysym.Control-Meta-c:    builtin-string:
+URxvt.keysym.Control-Meta-v:    builtin-string:
+
+URxvt.keysym.Control-Up:        \033[1;5A
+URxvt.keysym.Control-Down:      \033[1;5B
+URxvt.keysym.Control-Left:      \033[1;5D
+URxvt.keysym.Control-Right:     \033[1;5C
+
+### rofi ###
+
+! layout
+
+rofi.width:                     50
+rofi.lines:                     5
+rofi.columns:                   1
+rofi.font:                      Noto Sans 11
+rofi.bw:                        0
+rofi.location:                  0
+rofi.padding:                   350
+rofi.yoffset:                   0
+rofi.xoffset:                   0
+rofi.fixed-num-lines:           true
+rofi.show-icons:                false
+rofi.eh:                        1
+rofi.line-padding:              1
+rofi.hide-scrollbar:            true
+rofi.fullscreen:                true
+rofi.scroll-method:             1
+rofi.show-match:                false
+
+! colors
+
+! bg fg bgalt hlbg hlfg
+rofi.color-normal:              argb:00000000, #aabbee, argb:00000000, argb:33ffffff, #ffffff
+! rofi.color-urgent:
+! rofi.color-active:
+! bg border separator
+rofi.color-window:              argb:aa000000, white, argb:00000000
+
+! other
+
+rofi.max-history-size:          25
+rofi.kb-cancel:                 Escape
+rofi.auto-select:               false
+rofi.terminal:                  rofi-sensible-terminal
