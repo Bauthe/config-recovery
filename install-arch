@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# URL: https://github.com/bauthe/config-recovery/install-arch
+# This script creates a basic arch install in the specified location
+# It is intended to be run from a arch live usb
+
+# Steps to follow before running this script (from the live usb):
+# Connect to the internet with 'dhcpcd <device-name>' (find devices with 'ip link')
+# Create a ext4 partition where the system will be installed (use 'fdisk -l' to list disks and 'fdisk <disk-name>' to edit a the partition table, then 'mkfs.ext4 <partition-name>')
+# Mount this partiton (generally with 'mount <partition-name> /mnt'
+
+# Now this script can be run with './install-arch <partition-mountpoint>'
+
+[ -d "$1" ] || echo ERROR: \""$1"\" is not a directory && exit 2
+findmnt -M "$1" || echo ERROR: \""$1"\" is not a mounted partition && exit 1
+
