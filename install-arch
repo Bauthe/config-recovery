@@ -54,7 +54,7 @@ basicsetup () {
 }
 
 # Chrooting
-arch-chroot "$1" || exit 1
+arch-chroot "$1" -c basicsetup || exit 1
 
 # End message
 echo Installation complete !
