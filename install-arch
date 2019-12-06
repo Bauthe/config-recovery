@@ -20,36 +20,41 @@ pacstrap "$1" base base-devel linux linux-firmware git sudo neovim ranger || exi
 # Generating a fstab file
 genfstab -U "$1" >> "$1/etc/fstab" || exit 1
 
+# Basic setup function
+basicsetup () {
+	
+	# Time
+	echo Setting Time Zone
+	echo '> Enter your region (e.g. Europe):'; read region
+	echo '> Enter your city (e.g. Paris):'; read city
+	ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime || exit 1
+	hwclock --systohc || exit 1
+	systemctl enable systemd-timesyncd || exit 1
+
+	# Locale
+	echo Setting Locale
+	echo '> Enter your language (lowercase 2-letter code, e.g. fr):'; read language
+	echo '> Enter your variant (uppercase 2-letter code, e.g. FR):'; read variant
+	lang="$language_$variant.UTF-8"
+	sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen || exit 1
+	locale-gen || exit 1
+	echo "LANG=$lang" > /etc/locale.conf
+
+	# Keyboard
+	echo '> Enter your keyboard layout (e.g. fr or fr-latin1):'; read layout
+	echo "KEYMAP=$layout" > /etc/vconsole.conf
+
+	# Users
+	echo Setting Users
+	passwd
+	echo '> Enter your username (preferably with no spaces):'; read username
+	useradd -m "$username"
+	passwd "$username"
+
+}
+
 # Chrooting
 arch-chroot "$1" || exit 1
-
-# Time
-echo Setting Time Zone
-echo '> Enter your region (e.g. Europe):'; read region
-echo '> Enter your city (e.g. Paris):'; read city
-ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime || exit 1
-hwclock --systohc || exit 1
-systemctl enable systemd-timesyncd || exit 1
-
-# Locale
-echo Setting Locale
-echo '> Enter your language (lowercase 2-letter code, e.g. fr):'; read language
-echo '> Enter your variant (uppercase 2-letter code, e.g. FR):'; read variant
-lang="$language_$variant.UTF-8"
-sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen || exit 1
-locale-gen || exit 1
-echo "LANG=$lang" > /etc/locale.conf
-
-# Keyboard
-echo '> Enter your keyboard layout (e.g. fr or fr-latin1):'; read layout
-echo "KEYMAP=$layout" > /etc/vconsole.conf
-
-# Users
-echo Setting Users
-passwd
-echo '> Enter your username (preferably with no spaces):'; read username
-useradd -m "$username"
-passwd "$username"
 
 # End message
 echo Installation complete !
