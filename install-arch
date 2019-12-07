@@ -34,7 +34,7 @@ echo '> Enter your language (lowercase 2-letter code, e.g. fr):'; read language
 echo '> Enter your variant (uppercase 2-letter code, e.g. FR):'; read variant
 lang="$language_$variant.UTF-8"
 arch-chroot "$1" sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen
-arch_chroot "$1" locale-gen
+arch-chroot "$1" locale-gen
 arch-chroot "$1" echo "LANG=$lang" > /etc/locale.conf
 
 # Keyboard
