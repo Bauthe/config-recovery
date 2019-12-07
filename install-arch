@@ -18,23 +18,23 @@ findmnt -M "$1" > /dev/null || { echo ERROR: \""$1"\" is not a mounted partition
 pacstrap "$1" base base-devel linux linux-firmware git sudo neovim ranger || exit 1
 
 # Generating a fstab file
-genfstab -U "$1" >> "$1/etc/fstab" || exit 1
+genfstab -U "$1" >> "$1/etc/fstab"
 
 # Time
 echo Setting Time Zone
 echo '> Enter your region (e.g. Europe):'; read region
 echo '> Enter your city (e.g. Paris):'; read city
-{ arch-chroot "$1" ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime } || exit 1
-{ arch-chroot "$1" hwclock --systohc } || exit 1
-{ arch-chroot "$1" systemctl enable systemd-timesyncd } || exit 1
+arch-chroot "$1" ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime
+arch-chroot "$1" hwclock --systohc
+arch-chroot "$1" systemctl enable systemd-timesyncd
 
 # Locale
 echo Setting Locale
 echo '> Enter your language (lowercase 2-letter code, e.g. fr):'; read language
 echo '> Enter your variant (uppercase 2-letter code, e.g. FR):'; read variant
 lang="$language_$variant.UTF-8"
-{ arch-chroot "$1" sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen } || exit 1
-{ arch_chroot "$1" locale-gen } || exit 1
+arch-chroot "$1" sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen
+arch_chroot "$1" locale-gen
 arch-chroot "$1" echo "LANG=$lang" > /etc/locale.conf
 
 # Keyboard
