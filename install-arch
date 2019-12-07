@@ -72,10 +72,10 @@ do
 done
 
 # Switch to non-root user
-alias acu=ac sudo -u "$username" cd ~ &&
+alias acu=ac runuser "$username"
 
 # Installing git and yay
 ac pacman -S git
-acu { git clone https://aur.archlinux.com/yay; cd yay; makepkg -si }
+acu { cd ~; git clone https://aur.archlinux.com/yay; cd yay; makepkg -si }
 
 exit 0
