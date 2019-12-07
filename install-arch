@@ -2,55 +2,80 @@
 
 # URL: https://raw.githubusercontent.com/bauthe/config-recovery/master/install-arch
 # This script creates a basic arch install in the specified location
-# It is intended to be run from a arch live usb
+# It is intended to be run from an arch live usb
 
 # Steps to follow before running this script (from the live usb):
-# Connect to the internet with 'dhcpcd <device-name>' (find devices with 'ip link')
+# Connect to the internet with 'ip link set <device-name> up' and then 'dhcpcd' (find devices with 'ip link')
 # Create a ext4 partition where the system will be installed (use 'fdisk -l' to list disks and 'fdisk <disk-name>' to edit a the partition table, then 'mkfs.ext4 <partition-name>')
 # Mount this partiton (generally with 'mount <partition-name> /mnt'
 
 # Now this script can be run with './install-arch <partition-mountpoint>'
+# You better have run an arch install before
 
 [ -d "$1" ] || { echo ERROR: \""$1"\" is not a directory && exit 2; }
 findmnt -M "$1" > /dev/null || { echo ERROR: \""$1"\" is not a mounted partition && exit 1; }
 
 # Downloading the base packages
-pacstrap "$1" base base-devel linux linux-firmware git sudo neovim ranger || exit 1
+pacstrap "$1" base base-devel linux linux-firmware sudo || exit 1
 
 # Generating a fstab file
 genfstab -U "$1" >> "$1/etc/fstab"
 
+# Chroot
+alias ac=arch-chroot "$1"
+
+# Updating the system
+ac pacman -Syu
+
 # Time
 echo Setting Time Zone
-echo '> Enter your region (e.g. Europe):'; read region
-echo '> Enter your city (e.g. Paris):'; read city
-arch-chroot "$1" ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime
-arch-chroot "$1" hwclock --systohc
-arch-chroot "$1" systemctl enable systemd-timesyncd
+echo "> Enter your region (e.g. Europe):"; read region
+echo "> Enter your city (e.g. Paris):"; read city
+ac ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime
+ac hwclock --systohc
+ac systemctl enable systemd-timesyncd
 
 # Locale
 echo Setting Locale
-echo '> Enter your language (lowercase 2-letter code, e.g. fr):'; read language
-echo '> Enter your variant (uppercase 2-letter code, e.g. FR):'; read variant
+echo "> Enter your language (lowercase 2-letter code, e.g. fr):"; read language
+echo "> Enter your variant (uppercase 2-letter code, e.g. FR):"; read variant
 lang="$language_$variant.UTF-8"
-arch-chroot "$1" sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen
-arch-chroot "$1" locale-gen
-arch-chroot "$1" echo "LANG=$lang" > /etc/locale.conf
+ac sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen
+ac locale-gen
+ac echo "LANG=$lang" > /etc/locale.conf
 
 # Keyboard
-echo '> Enter your keyboard layout (e.g. fr or fr-latin1):'; read layout
-arch-chroot "$1" echo "KEYMAP=$layout" > /etc/vconsole.conf
+echo "> Enter your keyboard layout (e.g. fr or fr-latin1):"; read layout
+ac echo "KEYMAP=$layout" > /etc/vconsole.conf
 
 # Users
 echo Setting Users
-echo '> Password for root'
-arch-chroot "$1" passwd
-echo '> Enter your username (preferably with no spaces):'; read username
-arch-chroot "$1" useradd -m "$username"
-arch-chroot "$1" passwd "$username"
+echo "> Password for root"
+ac passwd
+echo "> Enter your username (preferably with no spaces):"; read username
+ac useradd -m "$username"
+echo "> Password for $username"
+ac passwd "$username"
+ac echo "$username ALL=(ALL) ALL" | (EDITOR="tee -a" visudo)
+echo "Granted all sudo privileges to $username"
 
-# End message
-echo Installation complete !
-echo Now you can set up a bootloader if necessary and reboot in your new system.
+# Mid way message
+echo Minimal install complete !
+while [ "$continue" != y -a "$continue" != Y ]
+do
+	read -p "Do you want to continue with a full environment install ? (y/N) " continue
+	case "$continue" in
+		"n"|"N"|"")
+			echo You can now continue your setup manually
+			exit 0;;
+	esac
+done
+
+# Switch to non-root user
+alias acu=ac sudo -u "$username" cd ~ &&
+
+# Installing git and yay
+ac pacman -S git
+acu { git clone https://aur.archlinux.com/yay; cd yay; makepkg -si }
 
 exit 0
