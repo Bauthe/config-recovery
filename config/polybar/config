@@ -58,11 +58,11 @@ font-1 = unifont:fontformat=truetype:size=10:antialias=true;3
 font-2 = FontAwesome:fontformat=truetype:size=10;3
 
 modules-left = i3
-modules-center = xbacklight pulseaudio memory cpu temperature battery date
+modules-center = backlight pulseaudio memory cpu temperature battery date
 
 tray-position = right
 tray-padding = 1
-; tray-background = #0063ff
+; tray-background = #0
 
 
 
@@ -101,8 +101,9 @@ label-urgent-padding = 2
 
 
 
-[module/xbacklight]
-type = internal/xbacklight
+[module/backlight]
+type = internal/backlight
+card = acpi_video0 
 
 format = <label> <bar>
 label = 

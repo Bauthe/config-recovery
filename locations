@@ -5,6 +5,7 @@
 ~/.nvidia-xinitrc
 ~/.xprofile
 ~/.Xresources
+~/.inputrc
 ~/.config/i3
 ~/.config/polybar
 ~/.config/picom.conf

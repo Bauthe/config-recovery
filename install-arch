@@ -76,6 +76,11 @@ alias acu=ac runuser "$username"
 
 # Installing git and yay
 ac pacman -S git
-acu { cd ~; git clone https://aur.archlinux.com/yay; cd yay; makepkg -si }
+installyay () {
+	git clone https://aur.archlinux.com/yay
+	cd yay
+	makepkg -si
+}
+acu installyay
 
 exit 0

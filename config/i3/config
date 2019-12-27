@@ -3,11 +3,11 @@
 set $mod Mod4
 
 # Startup apps
-exec --no-startup-id polybar bottom
 exec --no-startup-id udiskie --tray
 exec --no-startup-id blueman-applet
 for_window [class="Blueman-manager"] floating enable 
 exec --no-startup-id nm-applet
+exec --no-startup-id polybar bottom
 
 # Setting gaps
 gaps inner 10
@@ -37,9 +37,14 @@ bindsym XF86AudioRaiseVolume exec --no-startup-id $unmute && pactl set-sink-volu
 bindsym XF86AudioLowerVolume exec --no-startup-id $unmute && pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
 
+# Media control with playerctl
+bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
+bindsym XF86AudioNext exec --no-startup-id playerctl next
+bindsym XF86AudioPrev exec --no-startup-id playerctl previous
+
 # Sreen brightness controls
-bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight +4
-bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -4
+bindsym XF86MonBrightnessUp exec --no-startup-id smart-backlight up
+bindsym XF86MonBrightnessDown exec --no-startup-id smart-backlight down
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -133,6 +138,8 @@ bindsym $mod+Shift+underscore move container to workspace $ws8
 bindsym $mod+Shift+ccedilla move container to workspace $ws9
 bindsym $mod+Shift+agrave move container to workspace $ws10
 
+workspace_auto_back_and_forth yes
+
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
@@ -155,29 +162,3 @@ mode resize {
 }
 
 bindsym $mod+r mode "resize"
-
-# Start i3bar to display a workspace bar
-#bar {
-#    # behaviour
-#    mode hide
-#    hidden_state hide
-#    
-#    #content
-#   status_command i3blocks
-#    
-#    #appearance
-#    font pango:Noto Sans 11
-#        
-#    colors {
-#        background #414857
-#        statusline #d3dae3
-#        separator  #d3dae3
-#
-#        #                  border  background text
-#        focused_workspace  #5294e2 #5294e2 #d3dae3
-#        active_workspace   #5294e2 #5294e2 #d3dae3
-#        inactive_workspace #414857 #414857 #d3dae3
-#        urgent_workspace   #404552 #404552 #d3dae3
-#        binding_mode       #404552 #404552 #d3dae3
-#    }
-#}
