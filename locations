@@ -5,9 +5,9 @@
 ~/.nvidia-xinitrc
 ~/.xprofile
 ~/.Xresources
-~/.inputrc
 ~/.config/i3
 ~/.config/polybar
 ~/.config/picom.conf
 ~/.config/ranger
 ~/.config/nvim
+~/.config/termite

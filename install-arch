@@ -15,7 +15,7 @@
 [ -d "$1" ] || { echo ERROR: \""$1"\" is not a directory && exit 2; }
 findmnt -M "$1" > /dev/null || { echo ERROR: \""$1"\" is not a mounted partition && exit 1; }
 
-# Downloading the base packages
+# Installing the base packages
 pacstrap "$1" base base-devel linux linux-firmware sudo || exit 1
 
 # Generating a fstab file
@@ -56,31 +56,11 @@ echo "> Enter your username (preferably with no spaces):"; read username
 ac useradd -m "$username"
 echo "> Password for $username"
 ac passwd "$username"
-ac echo "$username ALL=(ALL) ALL" | (EDITOR="tee -a" visudo)
+ac echo "$username ALL=(ALL) ALL" | (EDITOR="tee -a" visudo) > /dev/null
 echo "Granted all sudo privileges to $username"
 
-# Mid way message
+# End message
 echo Minimal install complete !
-while [ "$continue" != y -a "$continue" != Y ]
-do
-	read -p "Do you want to continue with a full environment install ? (y/N) " continue
-	case "$continue" in
-		"n"|"N"|"")
-			echo You can now continue your setup manually
-			exit 0;;
-	esac
-done
-
-# Switch to non-root user
-alias acu=ac runuser "$username"
-
-# Installing git and yay
-ac pacman -S git
-installyay () {
-	git clone https://aur.archlinux.com/yay
-	cd yay
-	makepkg -si
-}
-acu installyay
+echo You can now reboot into your new Arch install
 
 exit 0
