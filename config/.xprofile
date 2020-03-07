@@ -8,10 +8,6 @@ if [ ! -z $1 ] && [ $1 == desktop ]; then
 
     # Redshift
     redshift &
-
-    # Compositing
-    #picom -b &
-
 fi
 
 picom -b &
