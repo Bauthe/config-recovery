@@ -15,9 +15,8 @@ scroll_on_output = true
 #scroll_on_keystroke = true
 # Length of the scrollback buffer, 0 disabled the scrollback buffer
 # and setting it to a negative value means "infinite scrollback"
-scrollback_lines = 0
+scrollback_lines = -1
 #search_wrap = true
-#urgent_on_bell = true
 #hyperlinks = false
 
 # $BROWSER is used by default if set, with xdg-open as a fallback
@@ -74,16 +73,3 @@ color12 = #10aaee
 color13 = #ffbb40
 color14 = #80eeee
 color15 = #ffffff
-
-[hints]
-#font = Monospace 12
-#foreground = #dcdccc
-#background = #3f3f3f
-#active_foreground = #e68080
-#active_background = #3f3f3f
-#padding = 2
-#border = #3f3f3f
-#border_width = 0.5
-#roundness = 2.0
-
-vim: ft=dosini cms=#%s
