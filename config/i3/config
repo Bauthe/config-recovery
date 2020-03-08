@@ -5,8 +5,8 @@ set $mod Mod4
 # Startup apps
 exec --no-startup-id polybar bottom
 exec --no-startup-id udiskie --tray
-exec --no-startup-id blueman-applet
-for_window [class="Blueman-manager"] floating enable 
+exec --no-startup-id blueberry-tray
+for_window [class="Blueberry.py"] floating enable 
 for_window [class="Pavucontrol"] floating enable 
 exec --no-startup-id nm-applet
 
