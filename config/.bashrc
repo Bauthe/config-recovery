@@ -8,6 +8,7 @@
 # Aliases
 alias ls='ls --color=auto'
 alias polybar-restart='killall polybar && polybar bottom & disown'
+alias config-sync=$HOME/Projects/config-recovery/config-sync
 
 # ex - archive extractor
 # usage: ex <file>

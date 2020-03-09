@@ -1,5 +1,6 @@
 ~/.bash_profile
 ~/.bashrc
+~/.zshrc
 ~/.vimrc
 ~/.xinitrc
 ~/.nvidia-xinitrc

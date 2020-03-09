@@ -56,9 +56,12 @@ bindsym $mod+Return exec termite
 # start apps
 bindsym $mod+e exec termite -e ranger
 bindsym $mod+b exec firefox
-bindsym Ctrl+Shift+Escape exec ksysguard
+bindsym Ctrl+Shift+Escape exec termite -e htop
 bindsym $mod+Print exec spectacle
 bindsym $mod+c exec code
+bindsym $mod+m exec MellowPlayer
+bindsym $mod+v exec vlc
+bindsym $mod+Mod1+c exec chromium
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -82,7 +85,7 @@ bindsym $mod+Shift+Right move right
 bindsym $mod+h split h
 
 # split in vertical orientation
-bindsym $mod+v split v
+bindsym $mod+Shift+v split v
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
@@ -172,3 +175,9 @@ mode resize {
 }
 
 bindsym $mod+r mode "resize"
+
+#bar {
+#    status_command      i3pystatus -c .config/i3pystatus
+#    position            top
+#    workspace_buttons   yes  
+#}
