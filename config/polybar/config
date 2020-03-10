@@ -230,7 +230,7 @@ animation-charging-framerate = 750
 [module/temperature]
 type = internal/temperature
 thermal-zone = 0
-warn-temperature = 600
+warn-temperature = 100
 
 format = <ramp> <label>
 format-overline = #f50a4d

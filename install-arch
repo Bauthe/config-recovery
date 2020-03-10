@@ -7,60 +7,98 @@
 # Steps to follow before running this script (from the live usb):
 # Connect to the internet with 'ip link set <device-name> up' and then 'dhcpcd' (find devices with 'ip link')
 # Create a ext4 partition where the system will be installed (use 'fdisk -l' to list disks and 'fdisk <disk-name>' to edit a the partition table, then 'mkfs.ext4 <partition-name>')
+# Optionally check the name of your EFI partition if you want to set up GRUB
 # Mount this partiton (generally with 'mount <partition-name> /mnt'
 
-# Now this script can be run with './install-arch <partition-mountpoint>'
+# Now this script can be run with '[EFI=<EFI-partition>] ./install-arch <partition-mountpoint>' [step_name]
 # You better have run an arch install before
 
 [ -d "$1" ] || { echo ERROR: \""$1"\" is not a directory && exit 2; }
 findmnt -M "$1" > /dev/null || { echo ERROR: \""$1"\" is not a mounted partition && exit 1; }
 
-# Installing the base packages
-pacstrap "$1" base base-devel linux linux-firmware sudo || exit 1
-
-# Generating a fstab file
-genfstab -U "$1" >> "$1/etc/fstab"
-
 # Chroot
 alias ac="arch-chroot $1"
 
-# Updating the system
-ac pacman -Syu
+# Installing the base packages
+install () {
+	pacstrap "$1" base base-devel linux linux-firmware sudo || exit 1
+
+	# Generating a fstab file
+	genfstab -U "$1" >> "$1/etc/fstab"
+
+	# Updating the system
+	ac pacman -Syu
+
+	time
+}
 
 # Time
-echo Setting Time Zone
-echo "> Enter your region (e.g. Europe):"; read region
-echo "> Enter your city (e.g. Paris):"; read city
-ac ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime
-ac hwclock --systohc
-ac systemctl enable systemd-timesyncd
+time () {
+	echo Setting Time Zone
+	echo "> Enter your region (e.g. Europe):"; read region
+	echo "> Enter your city (e.g. Paris):"; read city
+	ac ln -sf "/usr/share/zoneinfo/$region/$city" /etc/localtime
+	ac hwclock --systohc
+	ac systemctl enable systemd-timesyncd
+
+	locale
+}
 
 # Locale
-echo Setting Locale
-echo "> Enter your language (lowercase 2-letter code, e.g. fr):"; read language
-echo "> Enter your variant (uppercase 2-letter code, e.g. FR):"; read variant
-lang="$language_$variant.UTF-8"
-ac sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen
-ac locale-gen
-ac echo "LANG=$lang" > /etc/locale.conf
+locale () {
+	echo Setting Locale
+	echo "> Enter your language (lowercase 2-letter code, e.g. fr):"; read language
+	echo "> Enter your variant (uppercase 2-letter code, e.g. FR):"; read variant
+	lang="$language_$variant.UTF-8"
+	ac sed -i "s/#$lang UTF-8/$lang UTF-8/" /etc/locale.gen
+	ac locale-gen
+	ac echo "LANG=$lang" > /etc/locale.conf
 
-# Keyboard
-echo "> Enter your keyboard layout (e.g. fr or fr-latin1):"; read layout
-ac echo "KEYMAP=$layout" > /etc/vconsole.conf
+	echo "> Enter your keyboard layout (e.g. fr or fr-latin1):"; read layout
+	ac echo "KEYMAP=$layout" > /etc/vconsole.conf
+
+	users
+}
 
 # Users
-echo Setting Users
-echo "> Password for root"
-ac passwd
-echo "> Enter your username (preferably with no spaces):"; read username
-ac useradd -m "$username"
-echo "> Password for $username"
-ac passwd "$username"
-ac echo "$username ALL=(ALL) ALL" | (EDITOR="tee -a" visudo) > /dev/null
-echo "Granted all sudo privileges to $username"
+users () {
+	echo Setting Users
+	echo "> Password for root"
+	ac passwd
+	echo "> Enter your username (preferably with no spaces):"; read username
+	ac useradd -m "$username"
+	echo "> Password for $username"
+	ac passwd "$username"
+	ac echo "$username ALL=(ALL) ALL" | (EDITOR="tee -a" visudo) > /dev/null
+	echo "Granted all sudo privileges to $username"
+
+	grub
+}
+
+# GRUB configuration
+grub () {
+	if [ ! -z "$EFI" ]
+	then
+		r=none
+		while [ "$r" != "" -o "$r" != Y -o "$r" != y -o "$r" != N -o "$r" != n ]
+		do
+			echo "Do you want to set GRUB up ? [Y/n]:"; read r
+		done
+		if [ "$r" == "" -o "$r" == Y -o "$r" == y ]
+		then
+			echo "Configuring GRUB"
+			ac pacman -S grub os-prober
+		fi
+	fi
+}
+
+# Finding first step of the process
+process=install
+[ ! -z "$2" ] && process="$2"
+$process
 
 # End message
-echo Minimal install complete !
-echo You can now reboot into your new Arch install
+echo "Minimal install complete !"
+echo "You can now reboot into your new Arch install"
 
 exit 0
