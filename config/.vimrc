@@ -18,6 +18,9 @@ set hls is
 " Syntax highlighting
 syntax on
 
+" Bracket highlight
+hi MatchParen cterm=none ctermbg=grey ctermfg=white
+
 " Lines numbers
 set number
 

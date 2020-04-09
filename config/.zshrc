@@ -47,6 +47,7 @@ export ARCHFLAGS="-arch x86_64"
 
 # Aliases
 alias ls='ls --color=auto'
+alias v=nvim
 alias polybar-restart='killall polybar && polybar bottom & disown'
 alias config-sync=$HOME/Projects/config-recovery/config-sync
 
