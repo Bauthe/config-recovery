@@ -1,12 +1,17 @@
 # i3 config file (v4)
 
 set $mod Mod4
+set $alt Mod1
 
 # Startup apps
+exec --no-startup-id nitrogen --restore
 exec --no-startup-id polybar bottom
 exec --no-startup-id udiskie --tray
 exec --no-startup-id blueberry-tray
 exec --no-startup-id nm-applet
+exec --no-startup-id bbswitch-monitor
+
+exec --no-startup-id lxpolkit
 
 # floating rules
 for_window [class="Blueberry.py"] floating enable
@@ -15,6 +20,7 @@ for_window [class="Comsollauncher"] floating enable
 for_window [class="Arandr"] floating enable
 for_window [class="Lxappearance"] floating enable
 for_window [class="ksysguard"] floating enable
+for_window [class="Gnome-screenshot"] floating enable
 
 # Setting gaps
 gaps inner 10
@@ -66,21 +72,23 @@ bindsym $mod+Return exec termite
 bindsym $mod+e exec termite -e ranger
 bindsym $mod+b exec firefox
 bindsym Ctrl+Shift+Escape exec termite -e htop
-bindsym $mod+Print exec spectacle
+bindsym $mod+Print exec gnome-screenshot -w
 bindsym $mod+c exec code
 bindsym $mod+m exec MellowPlayer
+bindsym $mod+$alt+m exec minecraft-launcher
 bindsym $mod+v exec vlc
-bindsym $mod+Mod1+c exec chromium
+bindsym $mod+$alt+c exec chromium
 bindsym $mod+s exec steam
 bindsym $mod+t exec teams
-bindsym $mod+Mod1+d exec discord
+bindsym $mod+$alt+d exec discord
 bindsym $mod+p exec pavucontrol
+bindsym $mod+$alt+l exec lutris
 
 # kill focused window
 bindsym $mod+Shift+q kill
 
 # start app menu
-bindsym $mod+d exec --no-startup-id rofi -show run
+bindsym $mod+d exec --no-startup-id rofi -show drun
 
 # change focus
 bindsym $mod+Left focus left
@@ -172,22 +180,6 @@ bindsym $mod+l exec i3lock -i Pictures/wallpapers/arch_black.png -e -u
 
 # shutdown
 bindsym $mod+Shift+Escape exec poweroff
-
-# resize window
-mode resize {
-    # resizing bindings
-    bindsym Left resize shrink width 10 px or 10 ppt
-    bindsym Down resize grow height 10 px or 10 ppt
-    bindsym Up resize shrink height 10 px or 10 ppt
-    bindsym Right resize grow width 10 px or 10 ppt
-
-    # back to normal: Enter or Escape or $mod+r
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-    bindsym $mod+r mode "default"
-}
-
-bindsym $mod+r mode "resize"
 
 #bar {
 #    status_command      i3pystatus -c .config/i3pystatus

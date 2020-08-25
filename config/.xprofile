@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Setting wallpaper
-nitrogen --set-auto $HOME/Pictures/wallpapers/arch_btw_jupiter.jpg &
-
 #stuff for desktop sessions
 if [ ! -z $1 ] && [ $1 == desktop ]; then
 

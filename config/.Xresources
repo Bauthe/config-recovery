@@ -72,3 +72,4 @@ rofi.max-history-size:          25
 rofi.kb-cancel:                 Escape
 rofi.auto-select:               false
 rofi.terminal:                  rofi-sensible-terminal
+rofi.show-icons:				true

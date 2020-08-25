@@ -1,5 +1,5 @@
 #!/bin/sh
 
-xrandr --dpi 100
+xrandr --dpi 96
 source ~/.xprofile
 exec i3
