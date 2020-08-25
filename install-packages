@@ -1,0 +1,8 @@
+command="yay -S "
+while read line
+do
+    command="$command$line "
+done < packages
+
+echo $command
+$command
