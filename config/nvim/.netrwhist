@@ -1,5 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =5
+let g:netrw_dirhistcnt =7
+let g:netrw_dirhist_7='/home/baudouin/.config/ytmdl'
+let g:netrw_dirhist_6='/home/baudouin/.config/i3'
 let g:netrw_dirhist_5='/home/baudouin/.xmonad'
 let g:netrw_dirhist_4='/etc/i3'
 let g:netrw_dirhist_3='/home/baudouin/.config'

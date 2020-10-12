@@ -1,10 +1,9 @@
 ~/.bash_profile
 ~/.bashrc
-~/.zprofile
+~/.zshenv
 ~/.zshrc
 ~/.vimrc
 ~/.xinitrc
-~/.nvidia-xinitrc
 ~/.xprofile
 ~/.Xresources
 ~/.config/i3

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source ~/.xprofile desktop
+source ~/.xprofile
 xrdb -merge ~/.Xresources
 
-exec i3
+exec qtile

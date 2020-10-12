@@ -2,4 +2,4 @@
 
 xrandr --dpi 96
 source ~/.xprofile
-exec i3
+exec qtile

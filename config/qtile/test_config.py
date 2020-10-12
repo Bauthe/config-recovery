@@ -7,7 +7,7 @@ from libqtile.config import Click, Drag, Group, Key, Screen, Rule, Match
 from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 
-import custom_widget
+import test_custom_widget as custom_widget
 
 #############
 # FUNCTIONS #
@@ -84,7 +84,7 @@ matches = dict(
     discord=AndMatch(wm_class='discord', role='browser-window'),
     lutris=Match(wm_class=['Lutris']),
     minecraft=Match(wm_class=['minecraft-launcher']),
-    steam=Match(title=['Steam'], wm_class=['Steam', 'Zenity']),
+    steam=Match(title=['Steam'], wm_class=['Steam']),
     teams=Match(wm_class=['Microsoft Teams - Preview']),
 )
 
@@ -328,80 +328,17 @@ screens = [
                     fontsize=15,
                 ),
 
-                widget.TaskList(
-                    # colors
-                    border=theme['neutral'],
-                    urgent_border=theme['urgent'],
-
-                    #methods: 'border' or 'block'
-                    highlight_method='block',
-
-                    # characters
-                    markup_floating='  {}  ',
-                    markup_focused='  {}  ',
-                    markup_maximized='  {}  ',
-                    markup_minimized='  {}  ',
-                    markup_normal='  {}  ',
-
-                    # size
-                    borderwidth=1,
-                    margin=3,
-                    padding=3,
-                    icon_size=20,
+                custom_widget.Mpris2In2(
+                    play_pause_widget,
+                    name='deezer',
+                    objname='org.mpris.MediaPlayer2.deezer',
                 ),
 
                 #widget.Spacer(length = bar.STRETCH),
 
                 # widget.Notify(),
 
-                play_pause_widget,
-
-                custom_widget.Mpris2In2(
-                    name='deezer',
-                    objname='org.mpris.MediaPlayer2.deezer',
-                    display_metadata=['xesam:title', 'xesam:artist'],
-                    play_pause_widget=play_pause_widget,
-                ),
-
                 # widget.Spacer(length=10),
-
-                widget.Systray(
-                    padding=5,
-                ),
-
-                widget.Spacer(length=10),
-
-                custom_widget.Volume(
-                    background=theme['neutral'],
-                    update_interval=0.05,
-                ),
-
-                widget.Memory(
-                    format=' {MemPercent}%',
-                ),
-
-                widget.CPU(
-                    background=theme['neutral'],
-                    format=' {load_percent}%',
-                ),
-
-                widget.ThermalSensor(
-                    foreground_alert=theme['urgent'],
-                    fmt=' {}',
-                ),
-
-                custom_widget.Battery(
-                    background=theme['neutral'],
-                    charge_char='',
-                    discharge_char='',
-                    full_char='',
-                    empty_char='',
-                    format='{percent:.0%}  {char}',
-                    show_short_text=False,
-                    low_foreground=theme['urgent'],
-                    update_interval=2,
-                    notify_below=10,
-                ),
 
                 custom_widget.Clock(
                     padding=0,
@@ -481,7 +418,6 @@ floating_layout = layout.Floating(
         {'wname': 'branchdialog'},  # gitk
         {'wname': 'pinentry'},  # GPG key password entry
         {'wmclass': 'ssh-askpass'},  # ssh-askpass
-        {'wmclass': 'Xephyr'},
     ],
 )
 

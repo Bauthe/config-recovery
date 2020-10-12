@@ -1,27 +1,25 @@
 #!/bin/sh
 
-#stuff for desktop sessions
-if [ ! -z $1 ] && [ $1 == desktop ]; then
+[[ -f ~/.zshenv ]] && . ~/.zshenv
 
-    # Redshift
-    redshift &
-fi
-
-picom -b &
-
-# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the screen before suspend. Use loginctl lock-session to lock your screen.
-#exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork &
+# Redshift
+redshift &
 
 # Setting theme for Qt apps
-export QT_QPA_PLATFORMTHEME="qt5ct"
+export QT_QPA_PLATFORMTHEME=qt5ct
 
-# Removing ugly gnome apps buttons
+#removing GTK decorations
 export GTK_CSD=0
-export LD_PRELOAD="/usr/lib/libgtk3-nocsd.so.0"
+export LD_PRELOAD='/usr/${LIB}/libgtk3-nocsd.so.0'
 
-# Setting default text editor
-export EDITOR="nvim"
-export VISUAL="nvim"
-
-#Setting numlock on
+#Keyboard settings
 numlockx on
+
+#wallpaper
+{
+	while true
+	do
+		feh --randomize --bg-fill ~/Pictures/wallpapers/*
+		sleep 1800
+	done
+} &
