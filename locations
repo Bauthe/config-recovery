@@ -2,7 +2,6 @@
 ~/.bashrc
 ~/.zshenv
 ~/.zshrc
-~/.vimrc
 ~/.xinitrc
 ~/.xprofile
 ~/.Xresources
@@ -10,6 +9,6 @@
 ~/.config/polybar
 ~/.config/picom.conf
 ~/.config/ranger
-~/.config/nvim
-~/.config/termite
 ~/.config/qtile
+~/.config/alacritty
+~/.config/dunst

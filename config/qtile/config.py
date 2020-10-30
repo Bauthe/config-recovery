@@ -8,11 +8,13 @@ from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 
 import custom_widget
+import custom_border
 
 #############
 # FUNCTIONS #
 #############
 
+#custom_border.set_bar_border()
 
 class AndMatch:
 
@@ -58,15 +60,43 @@ def toggle_or_run(_exec, match=None):
     return __inner
 
 
+def toggle_widgets(group):
+
+    @lazy.function
+    def __inner(qtile):
+        for _widget in group:
+            _widget.toggle()
+
+    return __inner
+
+
+def run_or_kill(_exec, match=None):
+    if match is None:
+        match = Match(title=[_exec])
+
+    def __inner(qtile):
+        print('00')
+        # Trying to kill it
+        for _id, window in qtile.windows_map.items():
+            if match.compare(window):
+                window.kill()
+                return
+
+        # Trying to launch it
+        subprocess.Popen(_exec.split())
+
+
 def spawn(command):
-    return lambda qtile: qtile.cmd_spawn(command)
+    def __inner(qtile):
+        return qtile.cmd_spawn(command)
+    return __inner
 
 
 #############
 # VARIABLES #
 #############
 
-terminal = 'termite'
+terminal = 'alacritty'
 dmenu = 'rofi -show drun'
 browser = 'firefox'
 file_manager = 'pcmanfm-qt'
@@ -77,8 +107,8 @@ screen_locker = 'dm-tool switch-to-greeter'
 matches = dict(
     firefox=Match(wm_class=['firefox']),
     bpytop=AndMatch(
-        title=[terminal + ' -e bpytop', ' BpyTOP'],
-        wm_instance_class=terminal
+        title=['BpyTOP'],
+        wm_class=terminal[0].upper() + terminal[1:]
     ),
     deezer=Match(wm_class=['Deezer']),
     discord=AndMatch(wm_class='discord', role='browser-window'),
@@ -86,6 +116,7 @@ matches = dict(
     minecraft=Match(wm_class=['minecraft-launcher']),
     steam=Match(title=['Steam'], wm_class=['Steam', 'Zenity']),
     teams=Match(wm_class=['Microsoft Teams - Preview']),
+    pavucontrol=Match(wm_class=['Pavucontrol']),
 )
 
 
@@ -144,6 +175,9 @@ for i, (name, kwargs) in enumerate(group_config):
     groups.append(Group(name, position=i+1, **kwargs))
 
 
+mouse_widget_group = []
+
+
 ###############
 # KEYBINDINGS #
 ###############
@@ -172,10 +206,14 @@ keys = [
         desc='Move window left in current stack'),
 
     # Adjust layout
-    Key([mod], 'KP_Add', lazy.layout.increase_ratio(),
-        desc='Increase master/slave size ratio'),
-    Key([mod], 'KP_Subtract', lazy.layout.decrease_ratio(),
-        desc='Decrease master/slave size ratio'),
+    Key([mod], 'KP_Add', lazy.layout.grow(),
+        desc='Increase focused window size'),
+    Key([mod], 'KP_Subtract', lazy.layout.shrink(),
+        desc='Decrease focused window size'),
+
+    # Mouse mode
+    Key([mod], 'Escape', toggle_widgets(mouse_widget_group),
+        desc='Toggle mouse mode'),
 
     # General Qtile controls
     Key([mod], 'Tab', lazy.next_layout(), desc='Toggle between layouts'),
@@ -185,7 +223,8 @@ keys = [
         desc='Toggle floating for focused window'),
     Key([mod, 'shift'], 'q', lazy.window.kill(), desc='Kill focused window'),
     Key([mod, 'shift'], 'r', lazy.restart(), desc='Restart qtile'),
-    Key([mod, 'control', 'shift'], 'q', lazy.shutdown(), desc='Shutdown qtile'),
+    Key([mod, 'control', 'shift'], 'q', lazy.shutdown(),
+        desc='Shutdown qtile'),
 
     # Volume
     Key([], 'XF86AudioRaiseVolume', lazy.spawn(
@@ -205,7 +244,8 @@ keys = [
     Key([], 'XF86AudioPlay', lazy.spawn(
         'playerctl play-pause'), desc='Toggle play/pause'),
     Key([], 'XF86AudioNext', lazy.spawn('playerctl next'), desc='Next'),
-    Key([], 'XF86AudioPrev', lazy.spawn('playerctl previous'), desc='Previous'),
+    Key([], 'XF86AudioPrev', lazy.spawn('playerctl previous'),
+        desc='Previous'),
 
     # Screenshots
     Key([mod], 'Print', lazy.spawn('xfce4-screenshooter -wc'),
@@ -220,37 +260,43 @@ keys = [
     # Basic app launchers
     Key([mod], 'Return', lazy.spawn(terminal), desc='Launch terminal'),
     Key([mod], 'd', lazy.spawn(dmenu), desc='Launch dmenu'),
-    Key([mod], 'b', toggle_or_run(browser, matches[browser]), desc='Launch web browser'),
+    Key([mod], 'b', toggle_or_run(browser, matches[browser]),
+        desc='Launch web browser'),
     Key([mod], 'e', lazy.spawn(file_manager), desc='Launch file manager'),
     Key(['control', 'shift'], 'Escape', lazy.spawn(
         resource_monitor), desc='Launch resource monitor'),
     Key([mod], 'l', lazy.spawn(screen_locker), desc='Lock screen'),
+    Key([mod, 'control'], 'Delete', lazy.spawn('poweroff'), desc='Poweroff'),
 
     # App launchers
     Key([mod, alt], 'b', lazy.spawn('baobab'), desc='Launch baobab'),
     Key([mod, alt], 'c', lazy.spawn('chromium'), desc='Launch chromium'),
     Key([mod], 'c', lazy.spawn('code'), desc='Launch vscode'),
-    Key([mod, alt], 'd', toggle_or_run('discord', matches['discord']), desc='Launch discord'),
+    Key([mod, alt], 'd', toggle_or_run('discord', matches['discord']),
+        desc='Launch discord'),
     Key([mod, alt], 'e', lazy.spawn('dolphin'), desc='Launch dolphin'),
     Key([mod], 'g', toggle_or_run('gimp'), desc='Launch gimp'),
     Key([mod, alt], 'g', toggle_or_run('godot'), desc='Launch godot'),
     Key([mod, alt], 'l', toggle_or_run(
         'prime-run lutris', matches['lutris']), desc='Launch lutris'),
-    Key([mod], 'm', toggle_or_run('deezer', matches['deezer']), desc='Launch Deezer'),
+    Key([mod], 'm', toggle_or_run('deezer', matches['deezer']),
+        desc='Launch Deezer'),
     Key([mod, alt], 'm', toggle_or_run('prime-run minecraft-launcher',
-                                       matches['minecraft']), desc='Launch minecraft-launcher'),
+        matches['minecraft']), desc='Launch minecraft-launcher'),
     Key([mod], 'o', lazy.spawn('libreoffice'), desc='Launch libreoffice'),
     Key([mod], 'p', lazy.spawn('pavucontrol'), desc='Launch pavucontrol'),
-    Key([mod], 's', toggle_or_run('prime-run steam', matches['steam']), desc='Launch steam'),
-    Key([mod], 't', toggle_or_run('teams', matches['teams']), desc='Launch teams'),
+    Key([mod], 's', toggle_or_run('prime-run steam', matches['steam']),
+        desc='Launch steam'),
+    Key([mod], 't', toggle_or_run('teams', matches['teams']),
+        desc='Launch teams'),
     Key([mod], 'v', lazy.spawn('vlc'), desc='Launch vlc'),
     Key([mod], 'x', toggle_or_run(terminal + \
-                                  ' -e bpytop', matches['bpytop']), desc='Launch bpytop'),
+        ' -t BpyTOP -e bpytop', matches['bpytop']), desc='Launch bpytop'),
 ]
 
 # Group controls
-group_keys = ['ampersand', 'eacute', 'quotedbl', 'apostrophe',
-              'parenleft', 'minus', 'egrave', 'underscore', 'ccedilla', 'agrave']
+group_keys = ['ampersand', 'eacute', 'quotedbl', 'apostrophe', 'parenleft',
+              'minus', 'egrave', 'underscore', 'ccedilla', 'agrave']
 
 for name, key in zip(group_names, group_keys):
 
@@ -294,15 +340,30 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-play_pause_widget = widget.TextBox(
-    text='',
-    padding=3,
-)
+play_pause_widget_audacious, play_pause_widget_deezer = [
+    widget.TextBox(
+        text='',
+        padding=3,
+    )
+    for i in range(2)
+]
+
 
 screens = [
     Screen(
         bottom=bar.Bar(
             [
+                custom_widget.HideableText(
+                    group=mouse_widget_group,
+                    text='',
+                    hidden=True,
+                    fontsize=18,
+                    background=theme['primary'],
+                    mouse_callbacks={
+                        'Button1': spawn('rofi -no-fullscreen -width 20 -location 1 -lines 10 -padding 30 -yoffset 724 -show drun'),
+                    }
+                ),
+
                 custom_widget.GroupBox(
                     # color scheme
                     active=theme['normal'],
@@ -333,11 +394,11 @@ screens = [
                     border=theme['neutral'],
                     urgent_border=theme['urgent'],
 
-                    #methods: 'border' or 'block'
+                    # methods: 'border' or 'block'
                     highlight_method='block',
 
                     # characters
-                    markup_floating='  {}  ',
+                    markup_floating='  {}  ',  # '  {}  ',
                     markup_focused='  {}  ',
                     markup_maximized='  {}  ',
                     markup_minimized='  {}  ',
@@ -350,17 +411,23 @@ screens = [
                     icon_size=20,
                 ),
 
-                #widget.Spacer(length = bar.STRETCH),
 
-                # widget.Notify(),
+                play_pause_widget_audacious,
 
-                play_pause_widget,
+                custom_widget.Mpris2In2(
+                    name='audacious',
+                    objname='org.mpris.MediaPlayer2.audacious',
+                    display_metadata=['xesam:title', 'xesam:artist'],
+                    play_pause_widget=play_pause_widget_audacious,
+                ),
+
+                play_pause_widget_deezer,
 
                 custom_widget.Mpris2In2(
                     name='deezer',
                     objname='org.mpris.MediaPlayer2.deezer',
                     display_metadata=['xesam:title', 'xesam:artist'],
-                    play_pause_widget=play_pause_widget,
+                    play_pause_widget=play_pause_widget_deezer,
                 ),
 
                 # widget.Spacer(length=10),
@@ -374,6 +441,9 @@ screens = [
                 custom_widget.Volume(
                     background=theme['neutral'],
                     update_interval=0.05,
+                    mouse_callbacks={
+                        'Button3': run_or_kill('pavucontrol', matches['pavucontrol']),
+                    }
                 ),
 
                 widget.Memory(
@@ -405,6 +475,9 @@ screens = [
 
                 custom_widget.Clock(
                     padding=0,
+                    mouse_callbacks={
+                        'Button1': spawn('firefox https://calendar.google.com')
+                    }
                 ),
             ],
             size=30,
@@ -466,7 +539,6 @@ focus_on_window_activation = 'urgent'
 floating_layout = layout.Floating(
     border_width=0,
     float_rules=[
-        # Run the utility of `xprop` to see the wm class and name of an X client.
         {'wmclass': 'confirm'},
         {'wmclass': 'dialog'},
         {'wmclass': 'download'},
@@ -482,6 +554,7 @@ floating_layout = layout.Floating(
         {'wname': 'pinentry'},  # GPG key password entry
         {'wmclass': 'ssh-askpass'},  # ssh-askpass
         {'wmclass': 'Xephyr'},
+        {'wmclass': 'pavucontrol'},
     ],
 )
 

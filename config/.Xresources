@@ -39,17 +39,12 @@ URxvt.keysym.Control-Right:     \033[1;5C
 
 ! layout
 
-rofi.width:                     50
-rofi.lines:                     5
 rofi.columns:                   1
 rofi.font:                      Noto Sans 11
 rofi.bw:                        0
-rofi.location:                  0
 rofi.padding:                   350
-rofi.yoffset:                   0
-rofi.xoffset:                   0
 rofi.fixed-num-lines:           true
-rofi.show-icons:                false
+rofi.show-icons:                true
 rofi.eh:                        1
 rofi.line-padding:              1
 rofi.hide-scrollbar:            true
@@ -61,10 +56,7 @@ rofi.show-match:                false
 
 ! bg fg bgalt hlbg hlfg
 rofi.color-normal:              argb:00000000, #aabbee, argb:00000000, argb:33ffffff, #ffffff
-! rofi.color-urgent:
-! rofi.color-active:
-! bg border separator
-rofi.color-window:              argb:aa000000, white, argb:00000000
+rofi.color-window:              argb:cc000000, white, argb:00000000
 
 ! other
 
@@ -72,4 +64,3 @@ rofi.max-history-size:          25
 rofi.kb-cancel:                 Escape
 rofi.auto-select:               false
 rofi.terminal:                  rofi-sensible-terminal
-rofi.show-icons:				true

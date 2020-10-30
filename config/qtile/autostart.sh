@@ -12,7 +12,8 @@ picom -b &
 #clipman is started only if it was not running already
 pgrep xfce4-clipman || xfce4-clipman &
 lxpolkit &
-/lib/xfce4/notifyd/xfce4-notifyd &
+dunst &
+rclone mount Drive: ~/Drive &
 
 ### System tray ###
 blueman-applet &

@@ -31,6 +31,48 @@ class Battery(widget.battery.Battery):
         )
 
 
+class HideableText(widget.base._TextBox):
+
+    def __init__(self, group=None, hidden=False, **config):
+        widget.base._TextBox.__init__(self, **config)
+        self.is_hidden = False
+        self.oldtext = self.text
+        if group is not None:
+            group.append(self)
+        if hidden:
+            self.hide()
+
+    def button_press(self, x, y, button):
+        name = 'Button{0}'.format(button)
+        if name in self.mouse_callbacks:
+            self.mouse_callbacks[name](self.qtile)
+
+    """
+    def __setattr__(self, name, value):
+        if name == 'text':
+            widget.base.__TextBox
+    """
+
+    def hide(self):
+        self.is_hidden = True
+        self.oldtext = self.text
+        self.text = ''
+        if self.configured:
+            self.bar.draw()
+
+    def show(self):
+        self.is_hidden = False
+        self.text = self.oldtext
+        if self.configured:
+            self.bar.draw()
+
+    def toggle(self):
+        if self.is_hidden:
+            self.show()
+        else:
+            self.hide()
+
+
 class Clock(widget.clock.Clock):
 
     defaults = [
@@ -43,11 +85,7 @@ class Clock(widget.clock.Clock):
         widget.Clock.__init__(self, width=width, **config)
         self.add_defaults(Clock.defaults)
         self.format = self.time_format
-
-    def _configure(self, qtile, bar):
-        widget.base._TextBox._configure(self, qtile, bar)
-        print(type(self.layout.layout))
-          
+        #Button.__init__(self, **config)
 
     def mouse_enter(self, x, y):
         self.format = self.date_format
@@ -56,6 +94,11 @@ class Clock(widget.clock.Clock):
     def mouse_leave(self, x, y):
         self.format = self.time_format
         self.tick()
+
+    def button_press(self, x, y, button):
+        name = 'Button{0}'.format(button)
+        if name in self.mouse_callbacks:
+            self.mouse_callbacks[name](self.qtile)
 
     def _configure(self, qtile, bar):
         widget.base._TextBox._configure(self, qtile, bar)
@@ -166,6 +209,7 @@ class ScrollText(widget.base._TextBox):
             self.fontshadow,
             markup=self.markup,
         )
+        self.prepare_scroll()
 
     def get_content_width(self):
         sizelayout = self.drawer.textlayout(
@@ -178,35 +222,45 @@ class ScrollText(widget.base._TextBox):
         )
         return sizelayout.width
 
-    def draw(self, same_layout=False):
-        # if the bar hasn't placed us yet
-        if self.offsetx is None:
-            return
-        # saving processing if we don't need to clear
-        if not same_layout:
-            self.drawer.clear(self.background or self.bar.background)
-            self.layout.draw(
-                0 or self.actual_padding,
-                int(self.bar.height / 2.0 - self.layout.height / 2.0) + 1
-            )
-        # left padding
-        if not same_layout:
-            self.drawer.draw(offsetx=self.offsetx, width=self.actual_padding)
-        # drawing text with scroll offset
-        self.drawer.draw(
-            offsetx=self.offsetx + self.actual_padding,
-            width=self.width - 2*self.actual_padding,
-            srcx=self.actual_padding + self.scroll_index,
-        )
-        # right padding
-        if not same_layout:
-            self.drawer.draw(
-                offsetx=self.offsetx + self.width - self.actual_padding,
-                width=self.actual_padding
-            )
+    def is_drawable(self):
+        return self.width - 2*self.actual_padding > 0
 
     def can_scroll(self):
         return self.scroll_index + self.max_width < self.content_width + 2*self.actual_padding
+
+    def draw(self, same_layout=False):
+        """Draw the widget, taking scrolling into account
+        """
+
+        # if the bar hasn't placed us yet
+        if self.offsetx is None:
+            return
+        if self.is_drawable() and self.text != '':
+            # clear if needed
+            if not same_layout:
+                self.drawer.clear(self.background or self.bar.background)
+                self.layout.draw(
+                    0 or self.actual_padding,
+                    int(self.bar.height / 2.0 - self.layout.height / 2.0) + 1
+                )
+            # left padding
+            if not same_layout:
+                self.drawer.draw(
+                    offsetx=self.offsetx,
+                    width=self.actual_padding
+                )
+            # drawing text with scroll offset
+            self.drawer.draw(
+                offsetx=self.offsetx + self.actual_padding,
+                width=self.width - 2*self.actual_padding,
+                srcx=self.actual_padding + self.scroll_index,
+            )
+            # right padding
+            if not same_layout:
+                self.drawer.draw(
+                    offsetx=self.offsetx + self.width - self.actual_padding,
+                    width=self.actual_padding
+                )
 
     def prepare_scroll(self):
         self.scroll_index = 0
@@ -248,6 +302,8 @@ class ScrollText(widget.base._TextBox):
             self.scroll_id += 1
             self.is_scrolling = False
 
+def log(content):
+    open('mpris.log', 'a').write(str(content) + '\n')
 
 # initializing the class with the import function
 widget.Mpris2()
@@ -261,6 +317,7 @@ class Mpris2(widget.mpris2widget.Mpris2, ScrollText):
         ('format', '{status_char}  <b>{title}</b> - {artist}'),
         ('txt_inactive', ''),
         ('scrolling_enabled', True),
+        ('fetch_song_buffer_delay', 0.12)
     ]
 
     def __init__(self, **config):
@@ -270,12 +327,15 @@ class Mpris2(widget.mpris2widget.Mpris2, ScrollText):
         self.interface = None
         self.add_callbacks({
             'Button1': lambda: self.send_cmd('PlayPause'),
-            'Button4': lambda: self.send_cmd('Previous'),
-            'Button5': lambda: self.send_cmd('Next'),
+            'Button4': lambda: self.fetch_song('Previous'),
+            'Button5': lambda: self.fetch_song('Next'),
         })
         self.metadata = {}
         self.status_char = ''
         self.is_playing = None
+        self.text = self.txt_inactive
+        self.is_fetching = None
+        open('mpris.log', 'w')
 
     def _configure(self, qtile, bar):
         ScrollText._configure(self, qtile, bar)
@@ -310,7 +370,6 @@ class Mpris2(widget.mpris2widget.Mpris2, ScrollText):
         try:
             getattr(self.interface, command)()
         except dbus.DBusException as e:
-            print(repr(e))
             self._init_interface()
             if self.interface is not None:
                 getattr(self.interface, command)()
@@ -320,7 +379,15 @@ class Mpris2(widget.mpris2widget.Mpris2, ScrollText):
         if not self.configured:
             return True
 
-        self.is_playing = None
+        # collecting and updating playback status
+        playbackstatus = changed_properties.get('PlaybackStatus')
+        if playbackstatus == 'Paused':
+            self.is_playing = False
+            self.status_char = self.pause_char
+        elif playbackstatus == 'Playing':
+            self.is_playing = True
+            self.status_char = self.play_char
+
         # collecting and updating metadata
         m = changed_properties.get('Metadata')
         if m:
@@ -336,15 +403,6 @@ class Mpris2(widget.mpris2widget.Mpris2, ScrollText):
                     key: str(markupsafe.escape(value))
                     for key, value in self.metadata.items()
                 }
-
-        # collecting and updating playback status
-        playbackstatus = changed_properties.get('PlaybackStatus')
-        if playbackstatus == 'Paused':
-            self.is_playing = False
-            self.status_char = self.pause_char
-        elif playbackstatus == 'Playing':
-            self.is_playing = True
-            self.status_char = self.play_char
 
         # updating display
         self.update_display()
@@ -374,6 +432,15 @@ class Mpris2(widget.mpris2widget.Mpris2, ScrollText):
                 self.prepare_scroll()
         else:
             self.bar.draw()
+
+    def fetch_song(self, command):
+        if self.is_fetching != command:
+            self.is_fetching = command
+            self.send_cmd(command)
+
+            def timeout():
+                self.is_fetching = None
+            self.timeout_add(self.fetch_song_buffer_delay, timeout)
 
 
 class Mpris2In2(Mpris2):

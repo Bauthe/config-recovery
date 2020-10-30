@@ -19,7 +19,7 @@ numlockx on
 {
 	while true
 	do
-		feh --randomize --bg-fill ~/Pictures/wallpapers/*
+		feh --randomize --bg-fill /usr/share/backgrounds/*
 		sleep 1800
 	done
 } &
